@@ -1,0 +1,114 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install flask pytest
+      - run: python3 -m pytest test_app.py -v
+
+  build-macos:
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install pyinstaller flask
+      - name: Build onefile executable
+        run: |
+          python3 -m PyInstaller --onefile --windowed \
+            --name "scale-generator" \
+            --add-data "templates:templates" \
+            --add-data "static:static" \
+            --hidden-import "flask" \
+            --hidden-import "sqlite3" \
+            --hidden-import "datetime" \
+            --hidden-import "random" \
+            --hidden-import "json" \
+            --hidden-import "webbrowser" \
+            --hidden-import "threading" \
+            --hidden-import "socket" \
+            --hidden-import "jinja2" \
+            --hidden-import "markupsafe" \
+            --hidden-import "werkzeug" \
+            --hidden-import "click" \
+            --hidden-import "itsdangerous" \
+            --collect-submodules "flask" \
+            app.py
+      - name: Build .app bundle
+        run: |
+          python3 -m PyInstaller --windowed \
+            --name "scale-generator" \
+            --add-data "templates:templates" \
+            --add-data "static:static" \
+            --hidden-import "flask" \
+            --hidden-import "sqlite3" \
+            --hidden-import "datetime" \
+            --hidden-import "random" \
+            --hidden-import "json" \
+            --hidden-import "webbrowser" \
+            --hidden-import "threading" \
+            --hidden-import "socket" \
+            --hidden-import "jinja2" \
+            --hidden-import "markupsafe" \
+            --hidden-import "werkzeug" \
+            --hidden-import "click" \
+            --hidden-import "itsdangerous" \
+            --collect-submodules "flask" \
+            --osx-bundle-identifier "com.scalegenerator.app" \
+            app.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scale-generator-macos
+          path: |
+            dist/scale-generator
+            dist/scale-generator.app
+
+  build-windows:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install pyinstaller flask
+      - name: Build executable
+        run: |
+          pyinstaller --onefile --windowed `
+            --name "scale-generator" `
+            --add-data "templates;templates" `
+            --add-data "static;static" `
+            --hidden-import "flask" `
+            --hidden-import "sqlite3" `
+            --hidden-import "datetime" `
+            --hidden-import "random" `
+            --hidden-import "json" `
+            --hidden-import "webbrowser" `
+            --hidden-import "threading" `
+            --hidden-import "socket" `
+            --hidden-import "jinja2" `
+            --hidden-import "markupsafe" `
+            --hidden-import "werkzeug" `
+            --hidden-import "click" `
+            --hidden-import "itsdangerous" `
+            --collect-submodules "flask" `
+            app.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scale-generator-windows
+          path: dist/scale-generator.exe

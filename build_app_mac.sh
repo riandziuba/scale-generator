@@ -24,7 +24,7 @@ python3 -m PyInstaller --windowed \
   --hidden-import "click" \
   --hidden-import "itsdangerous" \
   --collect-submodules "flask" \
-  --osx-bundle-identifier "com.escala.app" \
+    --osx-bundle-identifier "com.scalegenerator.app" \
   app.py
 
 echo ""
