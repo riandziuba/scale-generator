@@ -29,7 +29,7 @@ jobs:
         run: pip install pyinstaller flask
       - name: Build onefile executable
         run: |
-          python3 -m PyInstaller --onefile --windowed \
+          python3 -m PyInstaller --onefile --windowed --noconfirm \
             --name "scale-generator" \
             --add-data "templates:templates" \
             --add-data "static:static" \
@@ -50,7 +50,8 @@ jobs:
             app.py
       - name: Build .app bundle
         run: |
-          python3 -m PyInstaller --windowed \
+          rm -rf build dist
+          python3 -m PyInstaller --windowed --noconfirm \
             --name "scale-generator" \
             --add-data "templates:templates" \
             --add-data "static:static" \
@@ -89,7 +90,7 @@ jobs:
         run: pip install pyinstaller flask
       - name: Build executable
         run: |
-          pyinstaller --onefile --windowed `
+          pyinstaller --onefile --windowed --noconfirm `
             --name "scale-generator" `
             --add-data "templates;templates" `
             --add-data "static;static" `
