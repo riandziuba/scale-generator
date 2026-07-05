@@ -1,0 +1,9 @@
+dist/
+build/
+*.spec
+__pycache__/
+*.pyc
+.escala.db
+*.db
+.DS_Store
+CODE_REVIEW.md

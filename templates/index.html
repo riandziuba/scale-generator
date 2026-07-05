@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="appName">Scale Generator</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 data-i18n="appName">Scale Generator</h1>
+            <div class="lang-switcher">
+                <button class="lang-btn" data-lang="pt">PT</button>
+                <button class="lang-btn active" data-lang="en">EN</button>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab active" data-tab="pessoas" data-i18n="tabPeople">Pessoas</button>
+            <button class="tab" data-tab="indisponibilidades" data-i18n="tabUnavailability">Indisponibilidades</button>
+            <button class="tab" data-tab="escalas" data-i18n="tabScales">Escalas</button>
+            <button class="tab" data-tab="ensaios" data-i18n="tabRehearsals">Ensaios</button>
+            <button class="tab" data-tab="relatorios" data-i18n="tabReports">Relatórios</button>
+        </nav>
+
+        <div id="pessoas" class="tab-content active">
+            <section>
+                <h2 data-i18n="peopleTitle">Cadastro de Pessoas</h2>
+                <form id="form-pessoa" class="form-inline">
+                    <input type="text" id="input-nome" data-i18n-placeholder="peopleName" placeholder="Nome" required>
+                    <input type="text" id="input-contato" data-i18n-placeholder="peopleContact" placeholder="Contato (telefone / email)">
+                    <button type="submit" class="btn-primary" data-i18n="peopleRegister">Cadastrar</button>
+                </form>
+                <div class="table-container">
+                    <table id="tabela-pessoas">
+                        <thead>
+                            <tr>
+                                <th data-i18n="peopleTableName">Nome</th>
+                                <th data-i18n="peopleTableContact">Contato</th>
+                                <th data-i18n="peopleTableActions">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <div id="indisponibilidades" class="tab-content">
+            <section>
+                <h2 data-i18n="unavTitle">Indisponibilidades</h2>
+                <p class="hint" data-i18n="unavHint">Registre dias em que cada pessoa não pode participar da escala.</p>
+                <form id="form-indisponibilidade" class="form-inline">
+                    <select id="select-pessoa-indispo" required>
+                        <option value="" data-i18n="unavSelect">Selecione a pessoa...</option>
+                    </select>
+                    <input type="date" id="input-data-indispo" required>
+                    <button type="submit" class="btn-primary" data-i18n="unavAdd">Adicionar</button>
+                </form>
+                <div class="table-container">
+                    <table id="tabela-indisponibilidades">
+                        <thead>
+                            <tr>
+                                <th data-i18n="unavTablePerson">Pessoa</th>
+                                <th data-i18n="unavTableDate">Data</th>
+                                <th data-i18n="unavTableActions">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <div id="escalas" class="tab-content">
+            <section>
+                <h2 data-i18n="scalesGenTitle">Gerar Escalas de Domingo</h2>
+                <p class="hint" data-i18n="scalesGenHint">Define o número de pessoas e o período para gerar escalas automáticas para todos os domingos.</p>
+                <form id="form-gerar" class="form-inline">
+                    <div class="field-group">
+                        <label><span data-i18n="scalesGenPerScale">Pessoas por escala:</span>
+                            <input type="number" id="input-num-pessoas" min="1" value="2" required class="input-small">
+                        </label>
+                    </div>
+                    <div class="field-group">
+                        <label><span data-i18n="scalesGenStart">Data início:</span>
+                            <input type="date" id="input-data-inicio" required>
+                        </label>
+                    </div>
+                    <div class="field-group">
+                        <label><span data-i18n="scalesGenEnd">Data fim:</span>
+                            <input type="date" id="input-data-fim" required>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary" data-i18n="scalesGenBtn">Gerar Escalas</button>
+                </form>
+            </section>
+
+            <section>
+                <h2 data-i18n="scalesExtraTitle">Adicionar Dia Extra</h2>
+                <p class="hint" data-i18n="scalesExtraHint">Adicione dias específicos com uma descrição (ex: ensaio geral, evento especial).</p>
+                <form id="form-extra" class="form-inline">
+                    <input type="date" id="input-data-extra" required>
+                    <input type="text" id="input-descricao-extra" data-i18n-placeholder="scalesExtraDesc" placeholder="Descrição do dia extra" required>
+                    <div class="field-group">
+                        <label><span data-i18n="scalesExtraPeople">Pessoas:</span>
+                            <input type="number" id="input-num-extra" min="1" value="2" required class="input-small">
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary" data-i18n="scalesExtraBtn">Adicionar</button>
+                </form>
+            </section>
+
+            <section>
+                <h2 data-i18n="scalesListTitle">Todas as Escalas</h2>
+                <div id="lista-escalas"></div>
+            </section>
+        </div>
+
+        <div id="ensaios" class="tab-content">
+            <section>
+                <h2 data-i18n="ensaioTitle">Ensaios</h2>
+                <p class="hint" data-i18n="ensaioHint">Ensaios vinculados às escalas. Para configurar um ensaio, vá até a escala desejada e clique em "Configurar Ensaio".</p>
+                <div id="lista-ensaios"></div>
+            </section>
+        </div>
+
+        <div id="relatorios" class="tab-content">
+            <section>
+                <h2 data-i18n="reportTitle">Relatórios</h2>
+                <p class="hint" data-i18n="reportHint">Gere relatórios das escalas para imprimir ou exportar como imagem.</p>
+                <div class="form-inline" style="gap:12px;">
+                    <button id="btn-relatorio-pdf" class="btn-primary" data-i18n="reportPdf">Gerar PDF para Impressão</button>
+                    <button id="btn-relatorio-png" class="btn-secondary" data-i18n="reportPng">Exportar como PNG</button>
+                </div>
+                <div id="relatorio-container" style="margin-top:16px;"></div>
+            </section>
+        </div>
+    </div>
+
+    <div id="relatorio-print" class="print-only"></div>
+
+    <div id="modal-ensaio" class="modal-overlay" style="display:none">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 data-i18n="modalEnsaioTitle">Configurar Ensaio</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="form-ensaio">
+                <p class="hint" data-i18n="modalEnsaioHint">Defina a data e horário do ensaio (podem ser diferentes da escala) e escolha um dos escalados como responsável.</p>
+                <div class="form-group">
+                    <label><span data-i18n="modalEnsaioDate">Data do ensaio:</span>
+                        <input type="date" id="input-ensaio-data" required>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label><span data-i18n="modalEnsaioTime">Horário:</span>
+                        <input type="time" id="input-ensaio-horario" required>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label><span data-i18n="modalEnsaioResp">Responsável:</span>
+                        <select id="select-ensaio-pessoa" required>
+                            <option value="" data-i18n="modalEnsaioSelectResp">Selecione o responsável...</option>
+                        </select>
+                    </label>
+                </div>
+                <input type="hidden" id="input-ensaio-escala-id">
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary modal-close-btn" data-i18n="modalCancel">Cancelar</button>
+                    <button type="submit" class="btn-primary" data-i18n="modalSave">Salvar Ensaio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/i18n.js"></script>
+    <script src="/static/api.js"></script>
+    <script src="/static/people.js"></script>
+    <script src="/static/unavailability.js"></script>
+    <script src="/static/scales.js"></script>
+    <script src="/static/rehearsals.js"></script>
+    <script src="/static/reports.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
