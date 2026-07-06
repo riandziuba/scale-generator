@@ -60,10 +60,14 @@ jobs:
         run: bash build_app_mac.sh
 
       - name: Upload app artifact
-        uses: actions/upload-artifact@v4
+        run: |
+          cd dist
+          zip -r ../scale-generator-macos.zip scale-generator.app
+        shell: bash
+      - uses: actions/upload-artifact@v4
         with:
           name: scale-generator-macos-app
-          path: dist/scale-generator.app
+          path: scale-generator-macos.zip
 
   build-windows:
     name: Build Windows executable
@@ -111,25 +115,35 @@ jobs:
           name: scale-generator-windows
           path: release
 
-      - name: Package artifacts
-        run: |
-          cd release
-          zip -r ../scale-generator-macos.zip scale-generator.app
-          mv ../scale-generator-macos.zip .
-          rm -rf scale-generator.app
-          ls -lh
+      - name: Inspect artifacts
+        run: ls -lh release/
 
       - name: Publish Release
         run: |
-          set +e
-          gh release edit ${{ github.ref_name }} \
-            --repo ${{ github.repository }} \
-            --draft=false 2>/dev/null
-          gh release upload ${{ github.ref_name }} release/* \
-            --repo ${{ github.repository }} \
-            --clobber 2>/dev/null || \
-          gh release create ${{ github.ref_name }} release/* \
-            --repo ${{ github.repository }} \
-            --generate-notes
+          set -e
+          TAG="${{ github.ref_name }}"
+          REPO="${{ github.repository }}"
+          FILES="release/scale-generator-macos.zip release/scale-generator.exe"
+
+          for f in $FILES; do
+            if [ ! -f "$f" ]; then
+              echo "ERROR: missing $f"
+              exit 1
+            fi
+          done
+
+          # If the release already exists (re-run), upload/clobber.
+          # Otherwise create a new one.
+          if gh release view "$TAG" --repo "$REPO" &>/dev/null; then
+            echo "Release $TAG exists — uploading assets"
+            gh release edit "$TAG" --repo "$REPO" --draft=false
+            gh release upload "$TAG" $FILES --repo "$REPO" --clobber
+          else
+            echo "Creating release $TAG"
+            gh release create "$TAG" $FILES \
+              --repo "$REPO" \
+              --generate-notes \
+              --verify-tag
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
