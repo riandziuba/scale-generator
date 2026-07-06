@@ -1,115 +1,89 @@
-name: Build and Release
+name: Build
 
 on:
   push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
+    branches:
+      - main
+      - master
+  pull_request:
 
 jobs:
-  test:
+  validate:
+    name: Validate
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - run: pip install flask pytest
-      - run: python3 -m pytest test_app.py -v
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install flask pytest
+
+      - name: Compile Python files
+        run: python -m py_compile app.py test_app.py
+
+      - name: Run tests
+        run: python -m pytest test_app.py -v
 
   build-macos:
-    needs: test
+    name: Build macOS app
     runs-on: macos-latest
+    needs: validate
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - name: Install dependencies
-        run: pip install pyinstaller flask
-      - name: Build onefile executable
+          python-version: '3.11'
+
+      - name: Install build dependencies
         run: |
-          python3 -m PyInstaller --onefile --windowed --noconfirm \
-            --name "scale-generator" \
-            --add-data "templates:templates" \
-            --add-data "static:static" \
-            --hidden-import "flask" \
-            --hidden-import "sqlite3" \
-            --hidden-import "datetime" \
-            --hidden-import "random" \
-            --hidden-import "json" \
-            --hidden-import "webbrowser" \
-            --hidden-import "threading" \
-            --hidden-import "socket" \
-            --hidden-import "jinja2" \
-            --hidden-import "markupsafe" \
-            --hidden-import "werkzeug" \
-            --hidden-import "click" \
-            --hidden-import "itsdangerous" \
-            --collect-submodules "flask" \
-            app.py
-      - name: Build .app bundle
-        run: |
-          rm -rf build dist
-          python3 -m PyInstaller --windowed --noconfirm \
-            --name "scale-generator" \
-            --add-data "templates:templates" \
-            --add-data "static:static" \
-            --hidden-import "flask" \
-            --hidden-import "sqlite3" \
-            --hidden-import "datetime" \
-            --hidden-import "random" \
-            --hidden-import "json" \
-            --hidden-import "webbrowser" \
-            --hidden-import "threading" \
-            --hidden-import "socket" \
-            --hidden-import "jinja2" \
-            --hidden-import "markupsafe" \
-            --hidden-import "werkzeug" \
-            --hidden-import "click" \
-            --hidden-import "itsdangerous" \
-            --collect-submodules "flask" \
-            --osx-bundle-identifier "com.scalegenerator.app" \
-            app.py
-      - uses: actions/upload-artifact@v4
+          python -m pip install --upgrade pip
+          python -m pip install flask pyinstaller
+
+      - name: Build app bundle
+        run: bash build_app_mac.sh
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: scale-generator-macos
-          path: |
-            dist/scale-generator
-            dist/scale-generator.app
+          name: scale-generator-macos-app
+          path: dist/scale-generator.app
 
   build-windows:
-    needs: test
+    name: Build Windows executable
     runs-on: windows-latest
+    needs: validate
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - name: Install dependencies
-        run: pip install pyinstaller flask
-      - name: Build executable
+          python-version: '3.11'
+
+      - name: Install build dependencies
         run: |
-          pyinstaller --onefile --windowed --noconfirm `
-            --name "scale-generator" `
-            --add-data "templates;templates" `
-            --add-data "static;static" `
-            --hidden-import "flask" `
-            --hidden-import "sqlite3" `
-            --hidden-import "datetime" `
-            --hidden-import "random" `
-            --hidden-import "json" `
-            --hidden-import "webbrowser" `
-            --hidden-import "threading" `
-            --hidden-import "socket" `
-            --hidden-import "jinja2" `
-            --hidden-import "markupsafe" `
-            --hidden-import "werkzeug" `
-            --hidden-import "click" `
-            --hidden-import "itsdangerous" `
-            --collect-submodules "flask" `
-            app.py
-      - uses: actions/upload-artifact@v4
+          python -m pip install --upgrade pip
+          python -m pip install flask pyinstaller
+
+      - name: Build executable
+        run: build_windows.bat
+
+      - name: Upload executable artifact
+        uses: actions/upload-artifact@v4
         with:
           name: scale-generator-windows
           path: dist/scale-generator.exe
