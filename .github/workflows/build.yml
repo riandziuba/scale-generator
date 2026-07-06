@@ -111,6 +111,14 @@ jobs:
           name: scale-generator-windows
           path: release
 
+      - name: Package artifacts
+        run: |
+          cd release
+          zip -r ../scale-generator-macos.zip scale-generator.app
+          mv ../scale-generator-macos.zip .
+          rm -rf scale-generator.app
+          ls -lh
+
       - name: Publish Release
         run: |
           set +e
