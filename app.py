@@ -563,6 +563,12 @@ def api_ensaios():
         return jsonify(dict(rehearsal)), 201
 
 
+@app.route('/api/shutdown', methods=['POST'])
+def shutdown():
+    threading.Timer(0.5, os._exit, args=[0]).start()
+    return jsonify({'status': 'ok'})
+
+
 @app.route('/api/ensaios/<int:id>', methods=['DELETE'])
 def deletar_ensaio(id):
     conn = get_db()

@@ -1,6 +1,8 @@
 const i18n = {
   pt: {
     appName: 'Gerador de Escala',
+    stopServer: 'Parar',
+    serverStopped: 'Servidor encerrado',
     langPt: 'Português',
     langEn: 'Inglês',
     tabPeople: 'Pessoas',
@@ -113,10 +115,13 @@ const i18n = {
     error_must_be_positive: 'Deve ser positivo',
     error_must_be_integer: 'Deve ser um número inteiro',
     error_person_not_assigned: 'Pessoa não está escalada para esta data',
+    error_shutdown_not_available: 'Servidor não suporta desligamento remoto',
   },
 
   en: {
     appName: 'Scale Generator',
+    stopServer: 'Stop',
+    serverStopped: 'Server stopped',
     langPt: 'Portuguese',
     langEn: 'English',
     tabPeople: 'People',
@@ -229,5 +234,37 @@ const i18n = {
     error_must_be_positive: 'Must be positive',
     error_must_be_integer: 'Must be an integer',
     error_person_not_assigned: 'Person is not assigned to this scale',
+    error_shutdown_not_available: 'Server does not support remote shutdown',
   },
 };
+
+let lang = localStorage.getItem('scale-generator-lang') || 'en';
+
+function t(key) {
+  return i18n[lang] && i18n[lang][key] !== undefined ? i18n[lang][key] :
+         i18n['en'] && i18n['en'][key] !== undefined ? i18n['en'][key] : key;
+}
+
+function setLanguage(l) {
+  lang = l;
+  localStorage.setItem('scale-generator-lang', l);
+  document.documentElement.lang = l === 'pt' ? 'pt-BR' : 'en';
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  translatePage();
+  loadAll();
+}
+
+function translatePage() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+}
+
+function dateLocale(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString(lang === 'pt' ? 'pt-BR' : 'en-US');
+}

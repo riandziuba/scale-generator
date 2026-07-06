@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 
 rm -rf build dist
 
-python3 -m PyInstaller --windowed \
+python3 -m PyInstaller --windowed --noconfirm \
   --name "scale-generator" \
   --add-data "templates:templates" \
   --add-data "static:static" \

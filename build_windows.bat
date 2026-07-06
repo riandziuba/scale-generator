@@ -6,7 +6,7 @@ cd /d "%~dp0"
 
 rmdir /s /q build dist 2>nul
 
-pyinstaller --onefile --windowed ^
+pyinstaller --onefile --windowed --noconfirm ^
   --name "scale-generator" ^
   --add-data "templates;templates" ^
   --add-data "static;static" ^

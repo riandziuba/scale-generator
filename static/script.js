@@ -21,6 +21,21 @@ async function loadAll() {
   loadScales();
 }
 
+// ---- Stop Server ----
+document.getElementById('btn-stop').addEventListener('click', async () => {
+  try {
+    const res = await fetch('/api/shutdown', { method: 'POST' });
+    if (!res.ok) {
+      const data = await res.json();
+      toast(t(data.error || 'errorGeneric'), 'error');
+      return;
+    }
+    toast(t('serverStopped'), 'success');
+  } catch (e) {
+    toast(t('serverStopped'), 'success');
+  }
+});
+
 // ---- Init ----
 document.addEventListener('DOMContentLoaded', () => {
   setLanguage(localStorage.getItem('scale-generator-lang') || 'pt');

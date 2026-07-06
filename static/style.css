@@ -30,12 +30,34 @@ header h1 {
     color: #1a1a2e;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .lang-switcher {
     display: flex;
     gap: 2px;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     overflow: hidden;
+}
+
+.btn-stop {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-stop:hover {
+    background: #dc2626;
 }
 
 .lang-btn {
