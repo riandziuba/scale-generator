@@ -80,6 +80,7 @@ jobs:
           python -m pip install flask pyinstaller
 
       - name: Build executable
+        shell: cmd
         run: build_windows.bat
 
       - name: Upload executable artifact
